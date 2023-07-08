@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Population import Population as Pop
+from Genetic_Algorithm.Population import Population as Pop
 
 
 # The classifiers will try to predict a sine function
