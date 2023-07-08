@@ -1,6 +1,6 @@
 import numpy as np
 import random
-from constants import MUT_SCALE, N_OF_SONS
+from Genetic_Algorithm.constants import MUT_SCALE, CROSSOVER_SCALE, N_OF_MUTATED_SONS, LEAKY_ALPHA
 
 
 class Layer:
@@ -11,26 +11,22 @@ class Layer:
         self.n_neurons = n_neurons
         self.n_inputs = n_inputs
 
-    # relu activation function
-    def activation(self):
-        self.nodes = np.maximum(self.nodes, 0)
+    # Leaky relu activation function
+    def leaky_relu_activation(self):
+        self.nodes = np.maximum(self.nodes, self.nodes * LEAKY_ALPHA)
 
     def normalize_exp(self):
+        self.nodes = np.abs(self.nodes)
         self.nodes = self.nodes / np.max(self.nodes)
-        self.nodes = np.exp(self.nodes)
-        self.nodes = self.nodes / sum(self.nodes)
-
-    def normalize_max(self):
-        nodes_max = np.max(self.nodes)
-        self.nodes = np.array([1 if self.nodes[i] == nodes_max else 0 for i in range(len(self.nodes))])
+        self.nodes = np.array([1 if node >= 0.5 else 0 for node in self.nodes])
 
     def forward(self, input_vector, is_last_layer=False):
         self.nodes = np.matmul(self.weights, input_vector) + self.biases
-        self.activation()
-        # if is_last_layer:
-        #     self.normalize_max()
-        # else:
-        #     self.activation()
+        self.leaky_relu_activation()
+        if is_last_layer:
+            self.normalize_exp()
+        else:
+            self.leaky_relu_activation()
         return self.nodes
 
     def mutate_from(self, other):
@@ -38,6 +34,13 @@ class Layer:
             for j in range(other.weights.shape[1]):
                 self.weights[i][j] = other.weights[i][j] * random.uniform(1 - MUT_SCALE, 1 + MUT_SCALE)
             self.biases[i] = other.biases[i] * random.uniform(1 - MUT_SCALE, 1 + MUT_SCALE)
+
+    def crossover_from(self, father, mother):
+        for i in range(father.weights.shape[0]):
+            for j in range(father.weights.shape[1]):
+                self.weights[i][j] = father.weights[i][j] * CROSSOVER_SCALE + mother.weights[i][j] * (
+                            1 - CROSSOVER_SCALE)
+            self.biases[i] = father.biases[i] * CROSSOVER_SCALE + mother.biases[i] * (1 - CROSSOVER_SCALE)
 
 
 class Brain:
@@ -48,7 +51,7 @@ class Brain:
         self.layers = [Layer(neurons_per_hidden[0], n_inputs)]
 
         for i in range(1, self.n_hidden):
-            self.layers.append(Layer(neurons_per_hidden[i], neurons_per_hidden[i-1]))
+            self.layers.append(Layer(neurons_per_hidden[i], neurons_per_hidden[i - 1]))
 
         self.layers.append(Layer(n_outputs, neurons_per_hidden[-1]))
 
@@ -62,6 +65,13 @@ class Brain:
     def mutate_from(self, other):
         for i, layer in enumerate(other.layers):
             self.layers[i].mutate_from(layer)
+
+    # Perform linear crossover between parents
+    def crossover_from(self, father, mother):
+        i = 0
+        for father_layer, mother_layer in zip(father.layers, mother.layers):
+            self.layers[i].crossover_from(father_layer, mother_layer)
+            i += 1
 
     def create_from(self, filename):
         with open(filename, "r") as file:
@@ -79,7 +89,7 @@ class Brain:
                 x_weights = int(weights[-2])
                 y_weights = int(weights[-1])
                 weights = np.zeros((x_weights, y_weights))
-                biases = np.zeros((x_weights, ))
+                biases = np.zeros((x_weights,))
                 for x in range(x_weights):
                     line = txt[current_line].split(' ')
                     for y in range(y_weights):
@@ -98,7 +108,7 @@ class Brain:
         with open(filename, "w") as file:
             file.write(f"{self.n_inputs} {self.n_hidden} {self.n_outputs}\n")
             for count, layer in enumerate(self.layers):
-                file.write("#"*30 + "\n" + f"Layer {count}\n")
+                file.write("#" * 30 + "\n" + f"Layer {count}\n")
                 x_weight = len(layer.weights)
                 y_weight = len(layer.weights[0])
                 file.write(f"weights: {x_weight} {y_weight}\n")
@@ -131,13 +141,21 @@ class Classifier:
         self.n_inputs = self.brain.n_inputs
         self.n_outputs = self.brain.n_outputs
 
-    def multiply(self):
+    def mutate(self):
         sons = []
-        for son in range(N_OF_SONS):
+        for son in range(N_OF_MUTATED_SONS):
             new_son = Classifier(self.n_inputs, self.neurons_per_hidden, self.n_outputs)
             new_son.brain.mutate_from(self.brain)
             sons.append(new_son)
-        return sons
+        return sons[:]
+
+    @staticmethod
+    def crossover(first_parent, second_parent):
+        sons = [Classifier(first_parent.n_inputs, first_parent.neurons_per_hidden, first_parent.n_outputs)
+                for _ in range(2)]
+        sons[0].brain.crossover_from(first_parent.brain, second_parent.brain)
+        sons[1].brain.crossover_from(second_parent.brain, first_parent.brain)
+        return sons[:]
 
     def classify(self, input_vector):
         self.classification = self.brain.parse(input_vector)

@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from Population import Population as Pop
+from Genetic_Algorithm.Population import Population as Pop
 
 
 # The classifiers will try to predict the 2 variable function z = x^2+y^2
@@ -13,7 +13,7 @@ num_iterations = 1000
 num_tries = 50
 history = []
 n_dim = 4
-decision_maker = Pop.Population(n_dim, [20, 20, 20], 1)
+decision_maker = Pop.Population(n_dim, [10], 1)
 gen_size = decision_maker.n_living
 for i in range(num_iterations*gen_size):
     fitness = 0
