@@ -7,6 +7,7 @@ from simulation_constants import MAX_STEERING_WHEEL_ANGLE, INERTIA_PARAMETER_WHE
 from simulation_constants import SAMPLE_TIME, eps
 from simulation_constants import SENSOR_RANGE, N_SENSOR
 from math import cos, sin, pi, fabs, sqrt
+from keras import models, layers, losses, optimizers, activations, regularizers
 
 
 class Sensor:
@@ -52,6 +53,8 @@ class Car:
         self.position = initial_position
         self.speed = initial_speed
         self.bounding_box = self.unravel_box()
+        self.keys_history = []
+        self.sensors_history = []
         self.alive = True
         if not self.DUMMY:
             self.control_system = [Sensor(angle, self.position) for angle in interpolate_cycle(N_SENSOR)]
@@ -119,3 +122,37 @@ class Car:
 
     def get_min_obstacle(self):
         return SENSOR_RANGE - max(self.control_system, key=lambda x: x.reading).reading
+
+    def get_model(self):
+        sensors_history = []
+        keys_history = []
+
+        with open("sensors_history.txt") as file:
+            for line in file:
+                line = line.rstrip(",\r\n ")
+                line = line.replace("[", "")
+                line = line.replace("]", "")
+                row = list(map(float, line.split(", ")))
+                sensors_history.append(row)
+
+        with open("keys_history.txt") as file:
+            for line in file:
+                line = line.rstrip(",\r\n ")
+                line = line.replace("[", "")
+                line = line.replace("]", "")
+                row = list(map(int, line.split(", ")))
+                keys_history.append(row)
+
+        model = models.Sequential()
+
+        model.add(layers.Dense(21, activation=activations.relu))
+
+        model.add(layers.Dense(21, activation=activations.relu))
+
+        model.add(layers.Dense(4, activation=activations.linear))
+
+        model.compile(optimizer=optimizers.Adam(), loss=losses.mean_squared_error)
+
+        history = model.fit(sensors_history, keys_history, batch_size=64, epochs=10000)
+
+        return model
