@@ -6,16 +6,17 @@ from simulation_constants import SAMPLE_TIME, FREQUENCY, N_SENSOR, SAMPLE_TIME, 
 from math import fabs
 import pygame
 from keras import models
+import numpy as np
 
 MAX_SIMULATION_TIME = 20
 
 sim = Simulation()
 run = True
 
-# option = 1  # para modelo de população
-option = 2  # para modelo de imitation learning
+# option = 1  #
+option = 2  # for using imitation learning
 
-Train_model = False  # para treinar ou não um novo modelo para o imitation learning
+Train_new_model = False  # option to train a new neural network or use an existing one
 
 clock = pygame.time.Clock()
 clock.tick(10 * FREQUENCY)
@@ -33,7 +34,7 @@ score = 0
 history = []
 
 if option == 2:
-    if Train_model:
+    if Train_new_model:
         model = sim.car.get_model()
         model.save('imitation.h5')
     else:
@@ -45,6 +46,10 @@ while run:
     # Close the program if the quit button was pressed
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            if option == 2:
+                print(sim.car.keys_history)
+                history = model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=32, epochs=1000)
+                model.save('imitation.h5')
             run = False
             # Pop.register_best()
     back_speed = speed
@@ -89,12 +94,27 @@ while run:
 
         if clf_move.argmax() == 0:
             sim.car.accelerate()
-        if clf_move.argmax() == 3:
-            sim.car.brake()
-        if clf_move.argmax() == 2:
-            sim.car.turn_right()
         if clf_move.argmax() == 1:
             sim.car.turn_left()
+        if clf_move.argmax() == 2:
+            sim.car.turn_right()
+        if clf_move.argmax() == 3:
+            sim.car.brake()
+
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            sim.car.keys_history.append([1, 0, 0, 0])
+            sim.car.sensors_history.append(read)
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            sim.car.keys_history.append([0, 1, 0, 0])
+            sim.car.sensors_history.append(read)
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            sim.car.keys_history.append([0, 0, 1, 0])
+            sim.car.sensors_history.append(read)
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            sim.car.keys_history.append([0, 0, 0, 1])
+            sim.car.sensors_history.append(read)
 
     current_time += SAMPLE_TIME
 

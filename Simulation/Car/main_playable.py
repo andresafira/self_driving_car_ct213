@@ -1,5 +1,5 @@
 from simulation import Simulation
-from simulation_constants import SAMPLE_TIME, CAR_START, FREQUENCY
+from simulation_constants import SAMPLE_TIME, CAR_START, FREQUENCY, CAR_MAX_SPEED
 import pygame
 
 sim = Simulation()
@@ -32,23 +32,7 @@ while run:
         if num_iterations >= 0:
             sim.car.keys_history.append([1, 0, 0, 0])
             read = sim.car.get_readings()
-            read.append(sim.car.speed)
-            sim.car.sensors_history.append(read)
-            num_iterations = 0
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-        sim.car.turn_right()
-        if num_iterations >= 0:
-            sim.car.keys_history.append([0, 0, 1, 0])
-            read = sim.car.get_readings()
-            read.append(sim.car.speed)
-            sim.car.sensors_history.append(read)
-            num_iterations = 0
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        sim.car.brake()
-        if num_iterations >= 0:
-            sim.car.keys_history.append([0, 0, 0, 1])
-            read = sim.car.get_readings()
-            read.append(sim.car.speed)
+            read.append(sim.car.speed * 2 / CAR_MAX_SPEED)
             sim.car.sensors_history.append(read)
             num_iterations = 0
     if keys[pygame.K_a] or keys[pygame.K_LEFT]:
@@ -56,7 +40,23 @@ while run:
         if num_iterations >= 0:
             sim.car.keys_history.append([0, 1, 0, 0])
             read = sim.car.get_readings()
-            read.append(sim.car.speed)
+            read.append(sim.car.speed * 2 / CAR_MAX_SPEED)
+            sim.car.sensors_history.append(read)
+            num_iterations = 0
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        sim.car.turn_right()
+        if num_iterations >= 0:
+            sim.car.keys_history.append([0, 0, 1, 0])
+            read = sim.car.get_readings()
+            read.append(sim.car.speed * 2 / CAR_MAX_SPEED)
+            sim.car.sensors_history.append(read)
+            num_iterations = 0
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        sim.car.brake()
+        if num_iterations >= 0:
+            sim.car.keys_history.append([0, 0, 0, 1])
+            read = sim.car.get_readings()
+            read.append(sim.car.speed * 2 / CAR_MAX_SPEED)
             sim.car.sensors_history.append(read)
             num_iterations = 0
 

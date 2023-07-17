@@ -31,7 +31,7 @@ class Simulation:
         self.background_sprite = load(BACKGROUND_SPRITE)
         self.car_sprite = scale(load(CAR_SPRITE), (CAR_WIDTH*1.1, CAR_HEIGHT))
         self.car = Car()
-        self.dummies = dummy_simple_generator(50)
+        self.dummies = dummy_simple_generator(30)
         self.objects = []
 
     def reset(self):
