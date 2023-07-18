@@ -48,7 +48,7 @@ while run:
         if event.type == pygame.QUIT:
             if option == 2:
                 print(sim.car.keys_history)
-                history = model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=32, epochs=1000)
+                history = model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=16, epochs=500)
                 model.save('imitation.h5')
             run = False
             # Pop.register_best()

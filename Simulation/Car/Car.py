@@ -153,6 +153,6 @@ class Car:
 
         model.compile(optimizer=optimizers.Adam(), loss=losses.mean_squared_error)
 
-        history = model.fit(sensors_history, keys_history, batch_size=64, epochs=10000)
+        history = model.fit(sensors_history, keys_history, batch_size=32, epochs=8000)
 
         return model
