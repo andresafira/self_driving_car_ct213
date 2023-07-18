@@ -13,7 +13,7 @@ MAX_SIMULATION_TIME = 20
 sim = Simulation()
 run = True
 
-# option = 1  #
+# option = 1  # for using genetic algorithm
 option = 2  # for using imitation learning
 
 Train_new_model = False  # option to train a new neural network or use an existing one
@@ -38,8 +38,8 @@ if option == 2:
         model = sim.car.get_model()
         model.save('imitation.h5')
     else:
-        model = models.load_model('imitation.h5')
-        model.save('backup.h5')
+        model = models.load_model('backup.h5')
+        # model.save('backup.h5')
 
 while run:
     clock.tick(100)
