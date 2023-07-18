@@ -39,6 +39,7 @@ if option == 2:
         model.save('imitation.h5')
     else:
         model = models.load_model('imitation.h5')
+        model.save('backup.h5')
 
 while run:
     clock.tick(100)
@@ -48,7 +49,7 @@ while run:
         if event.type == pygame.QUIT:
             if option == 2:
                 print(sim.car.keys_history)
-                history = model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=16, epochs=500)
+                model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=16, epochs=500)
                 model.save('imitation.h5')
             run = False
             # Pop.register_best()
@@ -86,7 +87,7 @@ while run:
 
     if option == 2:
         read = sim.car.get_readings()
-        read.append(sim.car.speed)
+        read.append(sim.car.speed / CAR_MAX_SPEED)
         input_vector = [read]
 
         clf_move = model.predict(input_vector)[0]
