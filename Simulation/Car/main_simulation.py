@@ -17,16 +17,17 @@ run = True
 option = 2  # for using imitation learning
 
 Train_new_model = False  # option to train a new neural network or use an existing one
+Initialize_pop = False
+Save_pop = False
 
 clock = pygame.time.Clock()
 clock.tick(10 * FREQUENCY)
 current_time = 0
 
 Pop = Population(N_SENSOR + 1, [2 * N_SENSOR // 3, N_SENSOR // 3], 4)
-try:
+if option == 1 and Initialize_pop:
     Pop.create_from('best_classifier.txt')
-except:
-    pass
+
 i = 0
 back_speed = 1
 speed = 0
@@ -51,8 +52,9 @@ while run:
                 print(sim.car.keys_history)
                 model.fit(sim.car.sensors_history, sim.car.keys_history, batch_size=16, epochs=500)
                 model.save('imitation.h5')
+            elif option == 1 and Save_pop:
+                Pop.register_best()
             run = False
-            # Pop.register_best()
     back_speed = speed
     sim.update()
     speed = sim.car.speed
