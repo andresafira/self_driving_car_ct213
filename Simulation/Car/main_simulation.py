@@ -21,8 +21,9 @@ Initialize_pop = False
 Save_pop = False
 
 clock = pygame.time.Clock()
-clock.tick(10 * FREQUENCY)
+clock.tick(FREQUENCY)
 current_time = 0
+punish_rate = 0.1  # a rate related to car's tendency to avoid high sensor readings
 
 Pop = Population(N_SENSOR + 1, [2 * N_SENSOR // 3, N_SENSOR // 3], 4)
 if option == 1 and Initialize_pop:
@@ -63,7 +64,8 @@ while run:
         if current_time > MAX_SIMULATION_TIME or (not sim.car.alive) or (speed <= 0 and back_speed <= 0):
             i += 1
             current_time = 0
-            Pop.tell(sim.car.position.location.y + score)
+            score += sim.car.position.location.y
+            Pop.tell(score)
             if i == Pop.gen_size:
                 i = 0
                 print('changed generation and best score was ', Pop.best_classifier.fitness)
@@ -85,7 +87,7 @@ while run:
         if clf_move[3] == 1:
             sim.car.turn_left()
 
-        score -= fabs(sim.car.speed) * sum(read) / 10
+        score -= punish_rate * fabs(sim.car.speed) * sum(read)
 
     if option == 2:
         read = sim.car.get_readings()
