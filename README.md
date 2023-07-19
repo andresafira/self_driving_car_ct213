@@ -29,7 +29,7 @@ You can change how the neural network is defined, as well as the number of epoch
 If you are not satisfied with the results obtained, it is possible to make corrections in the neural network by creating a smaller dataset while running the code in "main_simulation.py" with the integer "option" set as 2 and with the boolean "Train_new_model" set as False. To do this, use the arrow keys or WASD when a wrong decision is made. After you have closed the simulation, the neural network will be trained again and saved in a H5 file.
 For better results, when generating a new dataset for training only press a few times the correct key when the car makes a mistake.
 
-A H5 file containing a functioning neural network trained using Imitation Learning can be loaded in "main_simulation.py" is available in the repository as "Imitation.h5".
+A h5 file containing a functioning neural network trained using Imitation Learning can be loaded in "main_simulation.py" is available in the repository as "Imitation.h5".
 
 ## Authors and acknowledgment
 Show your appreciation to those who have contributed to the project.

@@ -10,15 +10,15 @@ import numpy as np
 
 MAX_SIMULATION_TIME = 20
 
-sim = Simulation()
+sim = Simulation(draw_Bounding_Box=False, draw_Sensors=False)
 run = True
 
-# option = 1  # for using genetic algorithm
-option = 2  # for using imitation learning
+option = 1  # for using genetic algorithm
+# option = 2  # for using imitation learning
 
 Train_new_model = False  # option to train a new neural network or use an existing one
-Initialize_pop = False
-Save_pop = False
+Initialize_pop = True
+Save_pop = True
 
 clock = pygame.time.Clock()
 clock.tick(FREQUENCY)
@@ -30,8 +30,6 @@ if option == 1 and Initialize_pop:
     Pop.create_from('best_classifier.txt')
 
 i = 0
-back_speed = 1
-speed = 0
 score = 0
 history = []
 
@@ -44,7 +42,7 @@ if option == 2:
         # model.save('backup.h5')
 
 while run:
-    clock.tick(100)
+    clock.tick(FREQUENCY)
 
     # Close the program if the quit button was pressed
     for event in pygame.event.get():
@@ -56,19 +54,18 @@ while run:
             elif option == 1 and Save_pop:
                 Pop.register_best()
             run = False
-    back_speed = speed
+
     sim.update()
-    speed = sim.car.speed
 
     if option == 1:
-        if current_time > MAX_SIMULATION_TIME or (not sim.car.alive) or (speed <= 0 and back_speed <= 0):
+        if current_time > MAX_SIMULATION_TIME or (not sim.car.alive):
             i += 1
             current_time = 0
             score += sim.car.position.location.y
             Pop.tell(score)
             if i == Pop.gen_size:
                 i = 0
-                print('changed generation and best score was ', Pop.best_classifier.fitness)
+                print('[INFO] Changed generation and best score was ', Pop.best_classifier.fitness)
                 history.append(Pop.best_classifier.fitness)
             sim.reset()
             score = 0
@@ -123,8 +120,8 @@ while run:
 
     current_time += SAMPLE_TIME
 
-# plt.plot(history)
-# plt.show()
-# with open('history_3.txt', 'w') as file:
-#     for a in history:
-#         file.write(str(a) + '\n')
+plt.plot(history)
+plt.show()
+with open('starting_left.txt', 'w') as file:
+    for a in history:
+        file.write(str(a) + '\n')

@@ -12,27 +12,37 @@ from Car import Car
 from math import pi, sin, cos, fabs
 
 
-def dummy_simple_generator(num_dummy, step=500):
+def dummy_simple_generator(num_dummy, step=500, side='right'):
+    if side == 'left':
+        first = MIDDLE_RIGHT
+        second = MIDDLE_LEFT
+    elif side == 'right':
+        first = MIDDLE_LEFT
+        second = MIDDLE_RIGHT
+    else:
+        raise Exception('Invalid side choice! Choose left or right side')
     dummies = []
     for i in range(num_dummy):
         if i % 2 == 0:
-            pose = Position(Vector(MIDDLE_LEFT, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
+            pose = Position(Vector(first, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
         else:
-            pose = Position(Vector(MIDDLE_RIGHT, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
+            pose = Position(Vector(second, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
         dummies.append(Car(initial_position=pose, DUMMY=True, initial_speed=10))
     return dummies
 
 
 class Simulation:
-    def __init__(self):
+    def __init__(self, draw_Bounding_Box=True, draw_Sensors=True):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Car simulation")
         self.background_sprite = load(BACKGROUND_SPRITE)
         self.car_sprite = scale(load(CAR_SPRITE), (CAR_WIDTH*1.1, CAR_HEIGHT))
         self.car = Car()
-        self.dummies = dummy_simple_generator(30)
+        self.dummies = dummy_simple_generator(30, side='left')
         self.objects = []
+        self.draw_BB = draw_Bounding_Box
+        self.draw_S = draw_Sensors
 
     def reset(self):
         self.car.position.location.x, self.car.position.location.y = CAR_START
@@ -87,14 +97,16 @@ class Simulation:
             sprite_copy.set_alpha(50)
         self.screen.blit(sprite_copy, (car.position.location.x - sprite_copy.get_width() / 2,
                                        HEIGHT / 2 - car.position.location.y + self.car.position.location.y))
-        self.draw_bounding_box(car)
+        if self.draw_BB:
+            self.draw_bounding_box(car)
 
     def draw_scenario(self):
         self.screen.blit(self.background_sprite, (0, clip(self.car.position.location.y, HEIGHT)))
         self.screen.blit(self.background_sprite, (0, clip(self.car.position.location.y - HEIGHT, -HEIGHT)))
         for dummy in self.dummies:
             self.draw_car(dummy)
-        self.draw_sensors()
+        if self.draw_S:
+            self.draw_sensors()
         self.draw_car(self.car)
 
     def update(self):
