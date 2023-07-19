@@ -39,7 +39,7 @@ if option == 2:
         model = sim.car.get_model()
         model.save('imitation.h5')
     else:
-        model = models.load_model('backup.h5')
+        model = models.load_model('imitation.h5')
         # model.save('backup.h5')
 
 while run:
