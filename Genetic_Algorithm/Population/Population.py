@@ -63,5 +63,5 @@ class Population:
         self.classifiers[0].register_at(FILE_PATH)
 
     def create_from(self, path):
-        for clf in self.classifiers[:2*len(self.classifiers)//3]:
+        for clf in self.classifiers[:len(self.classifiers)//2]:
             clf.create_from(path)

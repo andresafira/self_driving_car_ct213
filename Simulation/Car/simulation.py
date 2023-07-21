@@ -1,4 +1,5 @@
-from simulation_constants import WIDTH, HEIGHT, CAR_HEIGHT, CAR_WIDTH, BACKGROUND_SPRITE, CAR_SPRITE, CAR_START
+from simulation_constants import WIDTH, HEIGHT, CAR_HEIGHT, CAR_WIDTH, BACKGROUND_SPRITE, CAR_SPRITE
+from simulation_constants import CAR_START_LEFT, CAR_START_RIGHT
 from simulation_constants import SAMPLE_TIME, eps, SENSOR_RANGE, SIDEWALK_WIDTH, MIDDLE_RIGHT, MIDDLE_LEFT
 from simulation_constants import BLACK, WHITE, RED
 from Utils.General import clip
@@ -12,35 +13,61 @@ from Car import Car
 from math import pi, sin, cos, fabs
 
 
-def dummy_simple_generator(num_dummy, step=500):
+def make_default_position(location):
+    return Position(Vector(location[0], location[1]), 0)
+
+
+def dummy_simple_generator(num_dummy, step=500, side='right'):
+    if side == 'left':
+        first = MIDDLE_RIGHT
+        second = MIDDLE_LEFT
+    elif side == 'right':
+        first = MIDDLE_LEFT
+        second = MIDDLE_RIGHT
+    else:
+        raise Exception('Invalid side choice! Choose left or right side')
     dummies = []
     for i in range(num_dummy):
         if i % 2 == 0:
-            pose = Position(Vector(MIDDLE_LEFT, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
+            pose = Position(Vector(first, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
         else:
-            pose = Position(Vector(MIDDLE_RIGHT, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
+            pose = Position(Vector(second, HEIGHT/2 - CAR_HEIGHT + i * step), 0)
         dummies.append(Car(initial_position=pose, DUMMY=True, initial_speed=10))
     return dummies
 
 
 class Simulation:
-    def __init__(self):
+    def __init__(self, side, draw_Bounding_Box=True, draw_Sensors=True):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Car simulation")
         self.background_sprite = load(BACKGROUND_SPRITE)
         self.car_sprite = scale(load(CAR_SPRITE), (CAR_WIDTH*1.1, CAR_HEIGHT))
-        self.car = Car()
-        self.dummies = dummy_simple_generator(20)
+        if side == 'left':
+            self.car = Car(make_default_position(CAR_START_LEFT))
+        elif side == 'right':
+            self.car = Car(make_default_position(CAR_START_RIGHT))
+        else:
+            raise Exception('Invalid side choice! Choose left or right side')
+        self.dummies = dummy_simple_generator(30, side=side)
         self.objects = []
+        self.draw_BB = draw_Bounding_Box
+        self.draw_S = draw_Sensors
 
-    def reset(self):
-        self.car.position.location.x, self.car.position.location.y = CAR_START
+    def reset(self, side):
         self.car.position.rotation = 0
         self.car.speed = 0
         self.car.alive = True
         self.dummies.clear()
-        self.dummies = dummy_simple_generator(20)
+        if side == 'left':
+            self.car.position.location.x, self.car.position.location.y = CAR_START_LEFT
+            self.dummies = dummy_simple_generator(20, side='left')
+        elif side == 'right':
+            self.car.position.location.x, self.car.position.location.y = CAR_START_RIGHT
+            self.dummies = dummy_simple_generator(20, side='right')
+        else:
+            raise Exception('Invalid side choice! Choose between left or right side')
+        self.update_objects()
 
     def draw_sensors(self):
         theta = self.car.position.rotation
@@ -87,14 +114,16 @@ class Simulation:
             sprite_copy.set_alpha(50)
         self.screen.blit(sprite_copy, (car.position.location.x - sprite_copy.get_width() / 2,
                                        HEIGHT / 2 - car.position.location.y + self.car.position.location.y))
-        self.draw_bounding_box(car)
+        if self.draw_BB:
+            self.draw_bounding_box(car)
 
     def draw_scenario(self):
         self.screen.blit(self.background_sprite, (0, clip(self.car.position.location.y, HEIGHT)))
         self.screen.blit(self.background_sprite, (0, clip(self.car.position.location.y - HEIGHT, -HEIGHT)))
         for dummy in self.dummies:
             self.draw_car(dummy)
-        self.draw_sensors()
+        if self.draw_S:
+            self.draw_sensors()
         self.draw_car(self.car)
 
     def update(self):

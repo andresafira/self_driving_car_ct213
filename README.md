@@ -1,92 +1,60 @@
 # Self_Driving_Car-CT213_2023
 
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/omisso/self_driving_car-ct213_2023.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/omisso/self_driving_car-ct213_2023/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
 ## Name
-Choose a self-explaining name for your project.
+Self-driving car simulation
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
-
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
-
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+This project aims to use neural networks to train simulated car to avoid obstacles by two different methods: Imitation Learning and Genetic Algorithm.
 
 ## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+In order to test and use the algorithms and simulation implemented in the project, it is recommended to clone te repository:
+
+`git clone https://gitlab.com/omisso/self_driving_car-ct213_2023.git`
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+### Adjusting simulation parameters
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+It is possible to adjust the parameters of the simulation, as in the car width, maximum velocity, number of sensors, etc. To do this, simply go to the file "simulation_constants.py" and change the values to better fit the situation you desire.
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+### Adjusting population parameters
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+It is also possible to change the genetic algorithm hyperparameters, contained in the file `Genetic_Algorithm\constants.py`, such as
+the mutation scale and the crossover reproduction parameter. Numerical parameters, such as the number of mutated sons and number of 
+selected classifiers at the end of each generation, can also be changed. The initial parameters given were used to generate the 
+classifier represented in `Simulation\Car\best_classifier.txt`.
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+### Using the simulation
+
+Using the file `Simulation\Car\main_playable.py`, set `learn = False` in order to play around with the simulation.
+
+### Testing the implementation with benchmark functions
+
+In order to test the implementation of the genetic algorithm it is possible to use two scripts: `Simulation\Benchmark\sin_test.py` and
+`Simulation\Benchmark\paraboloid_test.py`, which represent a task to train the population to represent the given function. The paraboloid
+tes, involves learning how to represent an n-dimensional paraboloid, with given n.
+
+### Training a neural network using Genetic Algorithm
+
+Using the file `Simulation\Car\main_simulation.py`, choose the option 1, and adjust the run options (booleans to convey an action, such as
+saving the learned model, creating a population from an existing model, etc). The best classifier can be viewed by setting True the option
+`Initialize_pop`. Be aware that if the option `Save_pop` is set to true, at the end of an execution it will override any existing file named
+`best_classifier.txt`.
+
+### Training a neural network using Imitation Learning
+
+To train the neural network, first you need to run the code in "main_playable.py" to generate a dataset containing the input and expected output. After running it, the simulation will start and you will be able to control the car with the arrow keys or WASD.
+For better results, try to control the car using the same logic for when to do a specific action, such as only changing lanes when a sensor detects another car in the lane you currently are in, rather than doing it as soon as you see it.
+If you want a larger dataset, you can change the number of vehicles that appear, go to the file "simulation.py" and in line 34 change the number in the definition of "self.dummies".
+
+To create and train the neural network you created, as well as to test if it is able to properly function, run the code in "main_simulation.py" with the integer "option" set as 2 and with the boolean "Train_new_model" set as True. The resulting neural network will be saved in a H5 file with the name chosen in line 40.
+You can change how the neural network is defined, as well as the number of epochs and the batch size for training, in the function "get_model", which is defined in "Car.py".
+
+If you are not satisfied with the results obtained, it is possible to make corrections in the neural network by creating a smaller dataset while running the code in "main_simulation.py" with the integer "option" set as 2 and with the boolean "Train_new_model" set as False. To do this, use the arrow keys or WASD when a wrong decision is made. After you have closed the simulation, the neural network will be trained again and saved in a H5 file.
+For better results, when generating a new dataset for training only press a few times the correct key when the car makes a mistake.
+
+A h5 file containing a functioning neural network trained using Imitation Learning can be loaded in "main_simulation.py" is available in the repository as "Imitation.h5".
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
-
-## License
-For open source projects, say how it is licensed.
-
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+André Andrade Gonçalves and Guilherme Saraiva Braziliense.

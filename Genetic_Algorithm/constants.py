@@ -9,7 +9,7 @@ FILE_PATH = "best_classifier.txt"
 LEAKY_ALPHA = 0.01  # This constant should be less than 1
 
 # Population Hyperparameters
-N_WIN = 2
+N_WIN = 4
 N_OF_MUTATED_SONS = 2
 N_START = N_WIN * (N_OF_MUTATED_SONS + 2)  # This is a number of classifiers that stays constant
                                            # after selection and reproductions
