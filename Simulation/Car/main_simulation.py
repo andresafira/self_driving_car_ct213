@@ -2,28 +2,34 @@ import matplotlib.pyplot as plt
 
 from Genetic_Algorithm.Population.Population import Population
 from simulation import Simulation
-from simulation_constants import SAMPLE_TIME, FREQUENCY, N_SENSOR, SAMPLE_TIME, CAR_MAX_SPEED
+from simulation_constants import FREQUENCY, N_SENSOR, SAMPLE_TIME, CAR_MAX_SPEED, HEIGHT, CAR_HEIGHT
 from math import fabs
 import pygame
 from keras import models
-import numpy as np
+
+
+def change_side(side):
+    if side == 'left':
+        return 'right'
+    return 'left'
+
 
 MAX_SIMULATION_TIME = 20
 
-sim = Simulation(draw_Bounding_Box=False, draw_Sensors=False)
+sim = Simulation(side='left', draw_Bounding_Box=True, draw_Sensors=True)
 run = True
 
 option = 1  # for using genetic algorithm
 # option = 2  # for using imitation learning
 
 Train_new_model = False  # option to train a new neural network or use an existing one
-Initialize_pop = True
-Save_pop = True
+Initialize_pop = True  # Initialize half of the population with a previous classifier
+Save_pop = False  # Save the best classifier found with the method
 
 clock = pygame.time.Clock()
 clock.tick(FREQUENCY)
 current_time = 0
-punish_rate = 0.1  # a rate related to car's tendency to avoid high sensor readings
+punish_rate = 0.5  # a rate related to car's tendency to avoid high sensor readings
 
 Pop = Population(N_SENSOR + 1, [2 * N_SENSOR // 3, N_SENSOR // 3], 4)
 if option == 1 and Initialize_pop:
@@ -31,7 +37,12 @@ if option == 1 and Initialize_pop:
 
 i = 0
 score = 0
-history = []
+back_speed = 1
+speed = 1
+
+Save_History = False  # Save the fitness history of the classifiers
+best_history = []
+all_history = []
 
 if option == 2:
     if Train_new_model:
@@ -39,7 +50,7 @@ if option == 2:
         model.save('imitation.h5')
     else:
         model = models.load_model('imitation.h5')
-        # model.save('backup.h5')
+        model.save('backup.h5')
 
 while run:
     clock.tick(FREQUENCY)
@@ -54,20 +65,29 @@ while run:
             elif option == 1 and Save_pop:
                 Pop.register_best()
             run = False
-
+    back_speed = speed
     sim.update()
+    speed = sim.car.speed
 
     if option == 1:
-        if current_time > MAX_SIMULATION_TIME or (not sim.car.alive):
-            i += 1
+        if current_time > MAX_SIMULATION_TIME or (not sim.car.alive) or (speed <= 0 and back_speed <= 0):
+            back_speed = 1
+            speed = 1
             current_time = 0
-            score += sim.car.position.location.y
+            score += sim.car.position.location.y - (HEIGHT / 2 - CAR_HEIGHT)
+
+            i += 1
+            print('CAR ', i)
             Pop.tell(score)
+            if Save_History:
+                all_history.append(score)
             if i == Pop.gen_size:
                 i = 0
                 print('[INFO] Changed generation and best score was ', Pop.best_classifier.fitness)
-                history.append(Pop.best_classifier.fitness)
-            sim.reset()
+                if Save_History:
+                    best_history.append(Pop.best_classifier.fitness)
+
+            sim.reset(side='left')
             score = 0
 
         read = sim.car.get_readings()
@@ -84,7 +104,7 @@ while run:
         if clf_move[3] == 1:
             sim.car.turn_left()
 
-        score -= punish_rate * fabs(sim.car.speed) * sum(read)
+        score -= punish_rate * sum(read)
 
     if option == 2:
         read = sim.car.get_readings()
@@ -92,7 +112,6 @@ while run:
         input_vector = [read]
 
         clf_move = model.predict(input_vector)[0]
-        print(clf_move)
 
         if clf_move.argmax() == 0:
             sim.car.accelerate()
@@ -120,8 +139,9 @@ while run:
 
     current_time += SAMPLE_TIME
 
-plt.plot(history)
-plt.show()
-with open('starting_left.txt', 'w') as file:
-    for a in history:
-        file.write(str(a) + '\n')
+
+if option == 1 and Save_History:
+    plt.plot(best_history)
+    plt.show()
+    plt.plot(all_history)
+    plt.show()

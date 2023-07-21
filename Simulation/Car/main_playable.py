@@ -1,8 +1,8 @@
 from simulation import Simulation
-from simulation_constants import SAMPLE_TIME, CAR_START, FREQUENCY, CAR_MAX_SPEED
+from simulation_constants import SAMPLE_TIME, FREQUENCY, CAR_MAX_SPEED
 import pygame
 
-sim = Simulation()
+sim = Simulation(side='left')
 run = True
 num_iterations = 0
 learn = False

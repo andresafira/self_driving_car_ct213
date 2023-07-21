@@ -2,7 +2,8 @@ from Utils.Geometry.Vector import Vector
 from Utils.Geometry.Position import Position
 from Utils.Geometry.Box import Segment, Box
 from Utils.General import sgn, interpolate_cycle
-from simulation_constants import CAR_ACCELERATION, CAR_MAX_SPEED, CAR_ANGLE_STEP, CAR_START, CAR_WIDTH, CAR_HEIGHT
+from simulation_constants import CAR_ACCELERATION, CAR_MAX_SPEED, CAR_ANGLE_STEP, CAR_WIDTH, CAR_HEIGHT
+from simulation_constants import CAR_START_LEFT, CAR_START_RIGHT
 from simulation_constants import MAX_STEERING_WHEEL_ANGLE, INERTIA_PARAMETER_WHEEL, INERTIA_PARAMETER_SPEED
 from simulation_constants import SAMPLE_TIME, eps
 from simulation_constants import SENSOR_RANGE, N_SENSOR
@@ -48,7 +49,7 @@ class Sensor:
 
 
 class Car:
-    def __init__(self, initial_position=Position(Vector(CAR_START[0], CAR_START[1]), 0), initial_speed=0, DUMMY=False):
+    def __init__(self, initial_position, initial_speed=0, DUMMY=False):
         self.DUMMY = DUMMY
         self.position = initial_position
         self.speed = initial_speed

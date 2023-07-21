@@ -1,4 +1,5 @@
-from simulation_constants import WIDTH, HEIGHT, CAR_HEIGHT, CAR_WIDTH, BACKGROUND_SPRITE, CAR_SPRITE, CAR_START
+from simulation_constants import WIDTH, HEIGHT, CAR_HEIGHT, CAR_WIDTH, BACKGROUND_SPRITE, CAR_SPRITE
+from simulation_constants import CAR_START_LEFT, CAR_START_RIGHT
 from simulation_constants import SAMPLE_TIME, eps, SENSOR_RANGE, SIDEWALK_WIDTH, MIDDLE_RIGHT, MIDDLE_LEFT
 from simulation_constants import BLACK, WHITE, RED
 from Utils.General import clip
@@ -10,6 +11,10 @@ from pygame.image import load
 from pygame.locals import *
 from Car import Car
 from math import pi, sin, cos, fabs
+
+
+def make_default_position(location):
+    return Position(Vector(location[0], location[1]), 0)
 
 
 def dummy_simple_generator(num_dummy, step=500, side='right'):
@@ -32,25 +37,37 @@ def dummy_simple_generator(num_dummy, step=500, side='right'):
 
 
 class Simulation:
-    def __init__(self, draw_Bounding_Box=True, draw_Sensors=True):
+    def __init__(self, side, draw_Bounding_Box=True, draw_Sensors=True):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Car simulation")
         self.background_sprite = load(BACKGROUND_SPRITE)
         self.car_sprite = scale(load(CAR_SPRITE), (CAR_WIDTH*1.1, CAR_HEIGHT))
-        self.car = Car()
-        self.dummies = dummy_simple_generator(30, side='left')
+        if side == 'left':
+            self.car = Car(make_default_position(CAR_START_LEFT))
+        elif side == 'right':
+            self.car = Car(make_default_position(CAR_START_RIGHT))
+        else:
+            raise Exception('Invalid side choice! Choose left or right side')
+        self.dummies = dummy_simple_generator(30, side=side)
         self.objects = []
         self.draw_BB = draw_Bounding_Box
         self.draw_S = draw_Sensors
 
-    def reset(self):
-        self.car.position.location.x, self.car.position.location.y = CAR_START
+    def reset(self, side):
         self.car.position.rotation = 0
         self.car.speed = 0
         self.car.alive = True
         self.dummies.clear()
-        self.dummies = dummy_simple_generator(20)
+        if side == 'left':
+            self.car.position.location.x, self.car.position.location.y = CAR_START_LEFT
+            self.dummies = dummy_simple_generator(20, side='left')
+        elif side == 'right':
+            self.car.position.location.x, self.car.position.location.y = CAR_START_RIGHT
+            self.dummies = dummy_simple_generator(20, side='right')
+        else:
+            raise Exception('Invalid side choice! Choose between left or right side')
+        self.update_objects()
 
     def draw_sensors(self):
         theta = self.car.position.rotation
