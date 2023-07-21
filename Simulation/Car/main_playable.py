@@ -2,7 +2,7 @@ from simulation import Simulation
 from simulation_constants import SAMPLE_TIME, FREQUENCY, CAR_MAX_SPEED
 import pygame
 
-sim = Simulation(side='left')
+sim = Simulation(side='left', draw_Bounding_Box=True, draw_Sensors=True)
 run = True
 num_iterations = 0
 learn = False

@@ -7,15 +7,40 @@ Self-driving car simulation
 This project aims to use neural networks to train simulated car to avoid obstacles by two different methods: Imitation Learning and Genetic Algorithm.
 
 ## Installation
-Adiciona aí Omisso, namoral
 
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+In order to test and use the algorithms and simulation implemented in the project, it is recommended to clone te repository:
+
+`git clone https://gitlab.com/omisso/self_driving_car-ct213_2023.git`
 
 ## Usage
 
 ### Adjusting simulation parameters
 
 It is possible to adjust the parameters of the simulation, as in the car width, maximum velocity, number of sensors, etc. To do this, simply go to the file "simulation_constants.py" and change the values to better fit the situation you desire.
+
+### Adjusting population parameters
+
+It is also possible to change the genetic algorithm hyperparameters, contained in the file `Genetic_Algorithm\constants.py`, such as
+the mutation scale and the crossover reproduction parameter. Numerical parameters, such as the number of mutated sons and number of 
+selected classifiers at the end of each generation, can also be changed. The initial parameters given were used to generate the 
+classifier represented in `Simulation\Car\best_classifier.txt`.
+
+### Using the simulation
+
+Using the file `Simulation\Car\main_playable.py`, set `learn = False` in order to play around with the simulation.
+
+### Testing the implementation with benchmark functions
+
+In order to test the implementation of the genetic algorithm it is possible to use two scripts: `Simulation\Benchmark\sin_test.py` and
+`Simulation\Benchmark\paraboloid_test.py`, which represent a task to train the population to represent the given function. The paraboloid
+tes, involves learning how to represent an n-dimensional paraboloid, with given n.
+
+### Training a neural network using Genetic Algorithm
+
+Using the file `Simulation\Car\main_simulation.py`, choose the option 1, and adjust the run options (booleans to convey an action, such as
+saving the learned model, creating a population from an existing model, etc). The best classifier can be viewed by setting True the option
+`Initialize_pop`. Be aware that if the option `Save_pop` is set to true, at the end of an execution it will override any existing file named
+`best_classifier.txt`.
 
 ### Training a neural network using Imitation Learning
 
@@ -32,4 +57,4 @@ For better results, when generating a new dataset for training only press a few 
 A h5 file containing a functioning neural network trained using Imitation Learning can be loaded in "main_simulation.py" is available in the repository as "Imitation.h5".
 
 ## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+André Andrade Gonçalves and Guilherme Saraiva Braziliense.
