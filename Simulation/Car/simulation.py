@@ -37,7 +37,7 @@ def dummy_simple_generator(num_dummy, step=500, side='right'):
 
 
 class Simulation:
-    def __init__(self, side, draw_Bounding_Box=True, draw_Sensors=True):
+    def __init__(self, side: str = 'left', draw_Bounding_Box: bool = False, draw_Sensors: bool = False):
         pygame.init()
         self.screen = pygame.display.set_mode((WIDTH, HEIGHT))
         pygame.display.set_caption("Car simulation")
@@ -54,11 +54,14 @@ class Simulation:
         self.draw_BB = draw_Bounding_Box
         self.draw_S = draw_Sensors
 
-    def reset(self, side):
+        self.update_check = 0
+
+    def reset(self, side: str = 'left'):
         self.car.position.rotation = 0
         self.car.speed = 0
         self.car.alive = True
         self.dummies.clear()
+        self.update_check = 0
         if side == 'left':
             self.car.position.location.x, self.car.position.location.y = CAR_START_LEFT
             self.dummies = dummy_simple_generator(20, side='left')
@@ -96,7 +99,7 @@ class Simulation:
         for dummy in self.dummies:
             self.objects.append(dummy.bounding_box)
 
-    def draw_bounding_box(self, car):
+    def draw_bounding_box(self, car: Car):
         box = car.unravel_box()
         P1 = box.vertices[0].x, HEIGHT/2 - box.vertices[0].y + self.car.position.location.y + CAR_HEIGHT / 2
         P2 = box.vertices[1].x, HEIGHT/2 - box.vertices[1].y + self.car.position.location.y + CAR_HEIGHT / 2
@@ -108,7 +111,7 @@ class Simulation:
         pygame.draw.line(self.screen, WHITE, P3, P4)
         pygame.draw.line(self.screen, WHITE, P4, P1)
 
-    def draw_car(self, car):
+    def draw_car(self, car: Car):
         sprite_copy = rotate(self.car_sprite, car.position.rotation * 180 / pi)
         if not self.car.alive:
             sprite_copy.set_alpha(50)
@@ -128,6 +131,9 @@ class Simulation:
 
     def update(self):
         self.screen.fill(BLACK)
+        if self.update_check != 0:
+            self.objects.clear()
+            self.update_check = (self.update_check + 1) % 3
         self.car.update(self.objects)
         self.draw_scenario()
         self.update_objects()

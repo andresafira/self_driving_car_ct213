@@ -7,6 +7,7 @@ FILE_PATH = "best_classifier.txt"
 
 # Classifier Parameters
 LEAKY_ALPHA = 0.01  # This constant should be less than 1
+THRESHOLD = 0.0  # If node value is greater than 0.5, then it activates, must be between -1 and 1
 
 # Population Hyperparameters
 N_WIN = 4

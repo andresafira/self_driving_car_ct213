@@ -77,10 +77,10 @@ class Box:
         if type(objects) is Box:
             return self.check_collision_box(objects)
         if type(objects) is not list and type(objects) is not tuple:
-            return False
+            raise TypeError('Invalid input type')
         for obj in objects:
             if (type(obj) is Segment) and (self.check_collision_segment(obj) is not None):
                 return True
-            if (type(obj) is Box) and (self.check_collision_box(obj)):
+            elif (type(obj) is Box) and (self.check_collision_box(obj)):
                 return True
         return False

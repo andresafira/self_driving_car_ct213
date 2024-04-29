@@ -31,11 +31,11 @@ class Sensor:
     def analyse(self, world_objects):
         intersection_points = []
         for obj in world_objects:
-            if type(obj) == Segment:
+            if type(obj) is Segment:
                 point = self.segment.check_collision(obj)
                 if point is not None:
                     intersection_points.append(point)
-            elif type(obj) == Box:
+            elif type(obj) is Box:
                 points = obj.check_collision_segment(self.segment)
                 if points is not None:
                     intersection_points = intersection_points + points
@@ -45,7 +45,8 @@ class Sensor:
         else:
             first_intersection = max(intersection_points, key=lambda x: (self.edge - x).abs())
             self.reading = (first_intersection - self.edge).abs()
-            self.end_reading = self.base_center + Vector(-sin(self.angle), cos(self.angle)) * (SENSOR_RANGE - self.reading)
+            self.end_reading = self.base_center + Vector(-sin(self.angle), cos(self.angle)) * (
+                        SENSOR_RANGE - self.reading)
 
 
 class Car:
@@ -104,7 +105,8 @@ class Car:
         for sensor in self.control_system:
             sensor.update(self.position)
             sensor.analyse(world_objects)
-        if self.get_min_obstacle() <= 1.01 * sqrt((CAR_WIDTH/2)**2 + (CAR_HEIGHT/2)**2):
+        if world_objects is not None and \
+                self.get_min_obstacle() <= 1.01 * sqrt((CAR_WIDTH / 2) ** 2 + (CAR_HEIGHT / 2) ** 2):
             self.bounding_box = self.unravel_box()
             if self.bounding_box.check_collision(world_objects):
                 self.alive = False
@@ -114,8 +116,8 @@ class Car:
 
     def unravel_box(self):
         theta = self.position.rotation
-        P1 = self.position.location + Vector(-sin(theta) * CAR_HEIGHT/2 - cos(theta) * CAR_WIDTH/2,
-                                             cos(theta) * CAR_HEIGHT/2 - sin(theta) * CAR_WIDTH/2)
+        P1 = self.position.location + Vector(-sin(theta) * CAR_HEIGHT / 2 - cos(theta) * CAR_WIDTH / 2,
+                                             cos(theta) * CAR_HEIGHT / 2 - sin(theta) * CAR_WIDTH / 2)
         P2 = P1 + Vector(cos(theta), sin(theta)) * CAR_WIDTH
         P3 = P2 + Vector(sin(theta), -cos(theta)) * CAR_HEIGHT
         P4 = P1 + Vector(sin(theta), -cos(theta)) * CAR_HEIGHT
@@ -145,15 +147,9 @@ class Car:
                 keys_history.append(row)
 
         model = models.Sequential()
-
         model.add(layers.Dense(21, activation=activations.relu))
-
         model.add(layers.Dense(21, activation=activations.relu))
-
         model.add(layers.Dense(4, activation=activations.linear))
-
         model.compile(optimizer=optimizers.Adam(), loss=losses.mean_squared_error)
-
         model.fit(sensors_history, keys_history, batch_size=32, epochs=8000)
-
         return model

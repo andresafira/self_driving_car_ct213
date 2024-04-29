@@ -19,8 +19,8 @@ MAX_SIMULATION_TIME = 20
 sim = Simulation(side='left', draw_Bounding_Box=True, draw_Sensors=True)
 run = True
 
-# option = 1  # for using genetic algorithm
-option = 2  # for using imitation learning
+option = 1  # for using genetic algorithm
+# option = 2  # for using imitation learning
 
 Train_new_model = False  # option to train a new neural network or use an existing one
 Initialize_pop = True  # Initialize half of the population with a previous classifier

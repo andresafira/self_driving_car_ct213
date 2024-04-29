@@ -1,26 +1,42 @@
 import numpy as np
 import random
-from Genetic_Algorithm.constants import MUT_SCALE, CROSSOVER_SCALE, N_OF_MUTATED_SONS, LEAKY_ALPHA
+from Genetic_Algorithm.constants import MUT_SCALE, CROSSOVER_SCALE, N_OF_MUTATED_SONS, LEAKY_ALPHA, THRESHOLD
 
 
 class Layer:
-    def __init__(self, n_neurons, n_inputs):
+    def __init__(self, n_neurons: int, n_inputs: int):
+        """
+        Constructor to a layer object
+        :param n_neurons: number of neurons on the layer
+        :param n_inputs: number of inputs to the layer
+        """
         self.weights = np.random.randn(n_neurons, n_inputs)
         self.biases = np.random.randn(n_neurons)
         self.nodes = np.zeros(n_neurons)
         self.n_neurons = n_neurons
         self.n_inputs = n_inputs
 
-    # Leaky relu activation function
     def leaky_relu_activation(self):
+        """
+        Leaky ReLU activation function
+        """
         self.nodes = np.maximum(self.nodes, self.nodes * LEAKY_ALPHA)
 
     def normalize_exp(self):
-        self.nodes = np.abs(self.nodes)
-        self.nodes = self.nodes / np.max(self.nodes)
-        self.nodes = np.array([1 if node >= 0.5 else 0 for node in self.nodes])
+        """
+        Normalize the layer nodes between -1 and 1 and activates the layer using a
+        step function based on a given threshold.
+        """
+        self.nodes = self.nodes / np.max(np.abs(self.nodes))
+        self.nodes = np.ones(self.nodes.shape) * (self.nodes > THRESHOLD)
 
-    def forward(self, input_vector, is_last_layer=False):
+    def forward(self, input_vector: np.ndarray, is_last_layer: bool = False) -> np.ndarray:
+        """
+        Performs the forward operation of the layer, given an input vector, also applying the activation function
+        :param input_vector: the input vector
+        :param is_last_layer: boolean if it is the last layer (changes the activation function)
+        :return: the forwarded output of the layer
+        """
         self.nodes = np.matmul(self.weights, input_vector) + self.biases
         self.leaky_relu_activation()
         if is_last_layer:
